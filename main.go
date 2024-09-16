@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Scroll struct {
@@ -24,6 +25,12 @@ func (g *Game) Update() error {
 
 	g.Scroll.X += (g.Player.Bb.X + g.Player.Bb.W/2) - screenWidth/2 - g.Scroll.X
 	g.Scroll.Y += (g.Player.Bb.Y + g.Player.Bb.H/2) - screenHeight/2 - g.Scroll.Y
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		g.Player.Sprite.X = 20
+		g.Player.Sprite.Y = 120
+		g.Player.CurrentState = "normal"
+	}
 
 	return nil
 }
@@ -45,24 +52,30 @@ func main() {
 	}
 
 	player := Player{
-		Sprite:     Rect{100, 100, tileSize, tileSize},
-		Bb:         Rect{100, 100, 14, 12},
-		Oldbb:      Rect{100, 100, tileSize, tileSize},
-		OffsetX:    1,
-		OffsetY:    4,
-		Vx:         0,
-		Vy:         0,
-		Image:      spritesheet.SubImage(image.Rect(0, 238, 16, 254)).(*ebiten.Image),
-		Collisions: make(map[string]bool),
-		Animations: make(map[string]*Animation),
+		Sprite:       Rect{20, 120, tileSize, tileSize},
+		Bb:           Rect{20, 120, 14, 12},
+		Oldbb:        Rect{100, 100, tileSize, tileSize},
+		OffsetX:      1,
+		OffsetY:      4,
+		Vx:           0,
+		Vy:           0,
+		Image:        spritesheet.SubImage(image.Rect(0, 238, 16, 254)).(*ebiten.Image),
+		Collisions:   make(map[string]bool),
+		Animations:   make(map[string]*Animation),
+		States:       make(map[string]State),
+		CurrentState: "normal",
 	}
 	player.AddAnimation("idle", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 1, 0, 204, 0), 10)
 	player.AddAnimation("run", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 3, 17, 204, 1), 10)
 	player.AddAnimation("jump", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 1, 68, 204, 0), 10)
+	player.AddAnimation("death", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 1, 102, 204, 0), 10)
 	player.SetAnimation("idle")
 
-	tilemap := NewTilemap(40, 30)
-	tilemap.LoadTiles(spritesheet, "level.csv", 20, tileSize, 1)
+	player.AddState("normal", &PlayerNormalState{})
+	player.AddState("death", &PlayerDeathState{})
+
+	tilemap := NewTilemap(100, 40)
+	tilemap.LoadTiles(spritesheet, "level1.csv", 20, tileSize, 1)
 
 	g := &Game{
 		Player:  &player,

@@ -11,6 +11,7 @@ import (
 )
 
 type Tile struct {
+	Type       string
 	Sprite     Rect
 	Bb         Rect
 	Image      *ebiten.Image
@@ -72,21 +73,60 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 
 			img := spritesheet.SubImage(image.Rect(tileX, tileY, tileX+tileSize, tileY+tileSize)).(*ebiten.Image)
 
-			t.Tiles[y][x] = Tile{
-				Sprite: Rect{
-					X: float64(x * tileSize),
-					Y: float64(y * tileSize),
-					W: float64(tileSize),
-					H: float64(tileSize),
-				},
-				Bb: Rect{
-					X: float64(x * tileSize),
-					Y: float64(y * tileSize),
-					W: float64(tileSize),
-					H: float64(tileSize),
-				},
-				Image:      img,
-				Collidable: true,
+			if num == 183 {
+				t.Tiles[y][x] = Tile{
+					Type: "spike",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x*tileSize) + 3,
+						Y: float64(y*tileSize) + 7,
+						W: float64(tileSize) - 3,
+						H: float64(tileSize) - 7,
+					},
+					Image:      img,
+					Collidable: true,
+				}
+			} else if num == 116 {
+				t.Tiles[y][x] = Tile{
+					Type: "ledge",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize) - 11,
+					},
+					Image:      img,
+					Collidable: true,
+				}
+			} else {
+				t.Tiles[y][x] = Tile{
+					Type: "tile",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Image:      img,
+					Collidable: true,
+				}
 			}
 		}
 	}
