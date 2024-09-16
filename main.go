@@ -9,24 +9,33 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+type Scroll struct {
+	X, Y float64
+}
+
 type Game struct {
 	Player  *Player
 	Tilemap *Tilemap
+	Scroll  Scroll
 }
 
 func (g *Game) Update() error {
 	g.Player.Update(g.Tilemap)
+
+	g.Scroll.X += (g.Player.Bb.X + g.Player.Bb.W/2) - screenWidth/2 - g.Scroll.X
+	g.Scroll.Y += (g.Player.Bb.Y + g.Player.Bb.H/2) - screenHeight/2 - g.Scroll.Y
+
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{34, 34, 35, 255})
-	g.Tilemap.Draw(screen)
-	g.Player.Draw(screen)
+	g.Tilemap.Draw(screen, g.Scroll)
+	g.Player.Draw(screen, g.Scroll)
 }
 
 func (g *Game) Layout(w, h int) (int, int) {
-	return screenWidth * 2, screenHeight * 2
+	return screenWidth, screenHeight
 }
 
 func main() {
@@ -45,7 +54,12 @@ func main() {
 		Vy:         0,
 		Image:      spritesheet.SubImage(image.Rect(0, 238, 16, 254)).(*ebiten.Image),
 		Collisions: make(map[string]bool),
+		Animations: make(map[string]*Animation),
 	}
+	player.AddAnimation("idle", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 1, 0, 204, 0), 10)
+	player.AddAnimation("run", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 3, 17, 204, 1), 10)
+	player.AddAnimation("jump", CreateFramesFromSpritesheetHorizontal(spritesheet, 16, 16, 1, 68, 204, 0), 10)
+	player.SetAnimation("idle")
 
 	tilemap := NewTilemap(40, 30)
 	tilemap.LoadTiles(spritesheet, "level.csv", 20, tileSize, 1)

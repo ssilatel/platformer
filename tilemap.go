@@ -92,12 +92,12 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 	}
 }
 
-func (t *Tilemap) Draw(screen *ebiten.Image) {
+func (t *Tilemap) Draw(screen *ebiten.Image, scroll Scroll) {
 	for _, row := range t.Tiles {
 		for _, tile := range row {
 			if tile.Image != nil {
 				opts := ebiten.DrawImageOptions{}
-				opts.GeoM.Translate(tile.Sprite.X, tile.Sprite.Y)
+				opts.GeoM.Translate(tile.Sprite.X-scroll.X, tile.Sprite.Y-scroll.Y)
 				screen.DrawImage(tile.Image, &opts)
 			}
 		}
