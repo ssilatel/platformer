@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Scroll struct {
@@ -18,6 +19,7 @@ type Game struct {
 	Player  *Player
 	Tilemap *Tilemap
 	Scroll  Scroll
+	Debug   bool
 }
 
 func (g *Game) Update() error {
@@ -31,6 +33,9 @@ func (g *Game) Update() error {
 		g.Player.Sprite.Y = 120
 		g.Player.CurrentState = "normal"
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+		g.Debug = !g.Debug
+	}
 
 	return nil
 }
@@ -39,6 +44,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{34, 34, 35, 255})
 	g.Tilemap.Draw(screen, g.Scroll)
 	g.Player.Draw(screen, g.Scroll)
+
+	if g.Debug {
+		for _, row := range g.Tilemap.Tiles {
+			for _, t := range row {
+				vector.StrokeRect(screen, float32(t.Bb.X-g.Scroll.X), float32(t.Bb.Y-g.Scroll.Y), float32(t.Bb.W), float32(t.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
+			}
+		}
+		vector.StrokeRect(screen, float32(g.Player.Bb.X-g.Scroll.X), float32(g.Player.Bb.Y-g.Scroll.Y), float32(g.Player.Bb.W), float32(g.Player.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
+	}
 }
 
 func (g *Game) Layout(w, h int) (int, int) {

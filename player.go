@@ -96,13 +96,13 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	p.Bb.Y = p.Sprite.Y + p.OffsetY
 
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		p.Vx = -1
+		p.Vx = -1.4
 		p.Flip = true
 		if p.Collisions["bottom"] {
 			p.SetAnimation("run")
 		}
 	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
-		p.Vx = 1
+		p.Vx = 1.4
 		p.Flip = false
 		if p.Collisions["bottom"] {
 			p.SetAnimation("run")

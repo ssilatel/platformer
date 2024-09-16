@@ -84,8 +84,8 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 					},
 					Bb: Rect{
 						X: float64(x*tileSize) + 3,
-						Y: float64(y*tileSize) + 7,
-						W: float64(tileSize) - 3,
+						Y: float64(y*tileSize) + 9,
+						W: float64(tileSize) - 5,
 						H: float64(tileSize) - 7,
 					},
 					Image:      img,
