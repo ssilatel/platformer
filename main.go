@@ -67,9 +67,9 @@ func main() {
 
 	player := Player{
 		Sprite:       Rect{20, 120, tileSize, tileSize},
-		Bb:           Rect{20, 120, 14, 12},
+		Bb:           Rect{20, 120, 12, 12},
 		Oldbb:        Rect{100, 100, tileSize, tileSize},
-		OffsetX:      1,
+		OffsetX:      2,
 		OffsetY:      4,
 		Vx:           0,
 		Vy:           0,
