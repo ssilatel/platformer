@@ -9,4 +9,4 @@
 
 ## Preview
 
-![](https://github.com/ssilatel/platformer/game.gif)
+![](https://github.com/ssilatel/platformer/blob/master/game.gif)
