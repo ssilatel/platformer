@@ -46,10 +46,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.Player.Draw(screen, g.Scroll)
 
 	if g.Debug {
-		for _, row := range g.Tilemap.Tiles {
-			for _, t := range row {
-				vector.StrokeRect(screen, float32(t.Bb.X-g.Scroll.X), float32(t.Bb.Y-g.Scroll.Y), float32(t.Bb.W), float32(t.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
-			}
+		//tilesVisible := t.TilesVisible()
+		for _, t := range g.Tilemap.TilesVisible(g.Scroll) {
+			vector.StrokeRect(screen, float32(t.Bb.X-g.Scroll.X), float32(t.Bb.Y-g.Scroll.Y), float32(t.Bb.W), float32(t.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
 		}
 		vector.StrokeRect(screen, float32(g.Player.Bb.X-g.Scroll.X), float32(g.Player.Bb.Y-g.Scroll.Y), float32(g.Player.Bb.W), float32(g.Player.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
 	}
