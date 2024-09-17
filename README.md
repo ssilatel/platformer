@@ -5,7 +5,7 @@
 
 **R** to restart
 
-**C** for debugging (currently only Bounding Boxes)
+**C** for debugging (currently only Bounding Boxes). You can click on any tile to see it's X and Y position.
 
 ## Preview
 

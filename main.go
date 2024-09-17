@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -19,7 +20,11 @@ type Game struct {
 	Player  *Player
 	Tilemap *Tilemap
 	Scroll  Scroll
-	Debug   bool
+
+	Debug       bool
+	MouseX      int
+	MouseY      int
+	ClickedTile Tile
 }
 
 func (g *Game) Update() error {
@@ -46,12 +51,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.Player.Draw(screen, g.Scroll)
 
 	if g.Debug {
-		//tilesVisible := t.TilesVisible()
 		for _, t := range g.Tilemap.TilesVisible(g.Scroll) {
 			vector.StrokeRect(screen, float32(t.Bb.X-g.Scroll.X), float32(t.Bb.Y-g.Scroll.Y), float32(t.Bb.W), float32(t.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
 		}
 		vector.StrokeRect(screen, float32(g.Player.Bb.X-g.Scroll.X), float32(g.Player.Bb.Y-g.Scroll.Y), float32(g.Player.Bb.W), float32(g.Player.Bb.H), 1, color.RGBA{255, 0, 0, 255}, false)
+
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			mx, my := ebiten.CursorPosition()
+			g.MouseX = int((float64(mx) + g.Scroll.X) / tileSize)
+			g.MouseY = int((float64(my) + g.Scroll.Y) / tileSize)
+			g.ClickedTile = g.Tilemap.Tiles[g.MouseY][g.MouseX]
+		}
+		if g.ClickedTile.Image != nil {
+			vector.StrokeRect(screen, float32(g.ClickedTile.Bb.X-g.Scroll.X), float32(g.ClickedTile.Bb.Y-g.Scroll.Y), float32(g.ClickedTile.Bb.W), float32(g.ClickedTile.Bb.H), 1, color.RGBA{0, 0, 255, 255}, false)
+			tilePosX := fmt.Sprintf("%f", g.ClickedTile.Bb.X)
+			tilePosY := fmt.Sprintf("%f", g.ClickedTile.Bb.Y)
+			ebitenutil.DebugPrintAt(screen, tilePosX, int(g.ClickedTile.Bb.X-g.Scroll.X), int(g.ClickedTile.Bb.Y-20-g.Scroll.Y))
+			ebitenutil.DebugPrintAt(screen, tilePosY, int(g.ClickedTile.Bb.X-g.Scroll.X), int(g.ClickedTile.Bb.Y-10-g.Scroll.Y))
+		}
 	}
+	posX := fmt.Sprintf("%f", g.Player.Sprite.X)
+	posY := fmt.Sprintf("%f", g.Player.Sprite.Y)
+	ebitenutil.DebugPrintAt(screen, posX, int(g.Player.Sprite.X-g.Scroll.X), int(g.Player.Sprite.Y-20-g.Scroll.Y))
+	ebitenutil.DebugPrintAt(screen, posY, int(g.Player.Sprite.X-g.Scroll.X), int(g.Player.Sprite.Y-10-g.Scroll.Y))
 }
 
 func (g *Game) Layout(w, h int) (int, int) {
