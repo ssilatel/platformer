@@ -53,8 +53,12 @@ func (p *Player) Draw(screen *ebiten.Image, scroll Scroll) {
 	screen.DrawImage(p.Animations[p.CurrentAnimation].Frames[p.Animations[p.CurrentAnimation].CurrentFrame], opts)
 }
 
-func HasCollided(r1, r2 *Rect) bool {
-	return r1.X < r2.X+r2.W && r1.X+r1.W > r2.X && r1.Y < r2.Y+r2.H && r1.Y+r1.H > r2.Y
+func HasCollided(p *Player, r2 *Rect) bool {
+	if p.Oldbb.Y > p.Bb.Y {
+		p.Bb.Y -= 0.00000000000002
+		//return p.Bb.X < r2.X+r2.W && p.Bb.X+p.Bb.W > r2.X && p.Bb.Y < r2.Y+r2.H && p.Bb.Y+p.Bb.H-float64(0.00000000000003) > r2.Y
+	}
+	return p.Bb.X < r2.X+r2.W && p.Bb.X+p.Bb.W > r2.X && p.Bb.Y < r2.Y+r2.H && p.Bb.Y+p.Bb.H > r2.Y
 }
 
 func (p *Player) AddAnimation(name string, frames []*ebiten.Image, frameDuration int) {
@@ -131,7 +135,7 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y)
 
 	for _, t := range tilesAround {
-		if HasCollided(&p.Bb, &t.Bb) {
+		if HasCollided(p, &t.Bb) {
 			if t.Type == "spike" {
 				p.CurrentState = "death"
 			}
@@ -148,7 +152,7 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	p.Sprite.X = p.Bb.X - p.OffsetX
 
 	for _, t := range tilesAround {
-		if HasCollided(&p.Bb, &t.Bb) {
+		if HasCollided(p, &t.Bb) {
 			if t.Type == "spike" {
 				p.CurrentState = "death"
 			}
@@ -206,7 +210,7 @@ func (s *PlayerDeathState) Update(p *Player, tilemap *Tilemap) {
 	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y)
 
 	for _, t := range tilesAround {
-		if HasCollided(&p.Bb, &t.Bb) {
+		if HasCollided(p, &t.Bb) {
 			if p.Bb.X <= t.Bb.X+t.Bb.W && p.Oldbb.X >= t.Bb.X+t.Bb.W {
 				p.Bb.X = t.Bb.X + t.Bb.W
 				p.Collisions["left"] = true
@@ -220,7 +224,7 @@ func (s *PlayerDeathState) Update(p *Player, tilemap *Tilemap) {
 	p.Sprite.X = p.Bb.X - p.OffsetX
 
 	for _, t := range tilesAround {
-		if HasCollided(&p.Bb, &t.Bb) {
+		if HasCollided(p, &t.Bb) {
 			if p.Bb.Y <= t.Bb.Y+t.Bb.H && p.Oldbb.Y >= t.Bb.Y+t.Bb.H {
 				p.Bb.Y = t.Bb.Y + t.Bb.H
 				p.Collisions["top"] = true

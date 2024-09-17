@@ -69,11 +69,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			ebitenutil.DebugPrintAt(screen, tilePosX, int(g.ClickedTile.Bb.X-g.Scroll.X), int(g.ClickedTile.Bb.Y-20-g.Scroll.Y))
 			ebitenutil.DebugPrintAt(screen, tilePosY, int(g.ClickedTile.Bb.X-g.Scroll.X), int(g.ClickedTile.Bb.Y-10-g.Scroll.Y))
 		}
+		posX := fmt.Sprintf("%f", g.Player.Sprite.X)
+		posY := fmt.Sprintf("%f", g.Player.Sprite.Y)
+		ebitenutil.DebugPrintAt(screen, posX, int(g.Player.Sprite.X-g.Scroll.X), int(g.Player.Sprite.Y-20-g.Scroll.Y))
+		ebitenutil.DebugPrintAt(screen, posY, int(g.Player.Sprite.X-g.Scroll.X), int(g.Player.Sprite.Y-10-g.Scroll.Y))
 	}
-	posX := fmt.Sprintf("%f", g.Player.Sprite.X)
-	posY := fmt.Sprintf("%f", g.Player.Sprite.Y)
-	ebitenutil.DebugPrintAt(screen, posX, int(g.Player.Sprite.X-g.Scroll.X), int(g.Player.Sprite.Y-20-g.Scroll.Y))
-	ebitenutil.DebugPrintAt(screen, posY, int(g.Player.Sprite.X-g.Scroll.X), int(g.Player.Sprite.Y-10-g.Scroll.Y))
 }
 
 func (g *Game) Layout(w, h int) (int, int) {
