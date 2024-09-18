@@ -12,19 +12,24 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
+// GREY 34, 34, 35
+// BLUE 34, 34, 130
+
 type Scroll struct {
 	X, Y float64
 }
 
 type Game struct {
-	Player  *Player
-	Tilemap *Tilemap
-	Scroll  Scroll
+	Player        *Player
+	Tilemap       *Tilemap
+	Scroll        Scroll
+	Colours       map[string]color.RGBA
+	CurrentColour string
 
 	Debug       bool
 	MouseX      int
 	MouseY      int
-	ClickedTile Tile
+	ClickedTile *Tile
 }
 
 func (g *Game) Update() error {
@@ -38,15 +43,48 @@ func (g *Game) Update() error {
 		g.Player.Sprite.Y = 120
 		g.Player.CurrentState = "normal"
 	}
+
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+		g.ChangeColour()
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
 		g.Debug = !g.Debug
 	}
 
 	return nil
 }
 
+func (g *Game) ChangeColour() {
+	if g.CurrentColour == "grey" {
+		g.CurrentColour = "blue"
+	} else {
+		g.CurrentColour = "grey"
+	}
+
+	if g.CurrentColour != "grey" {
+		for _, row := range g.Tilemap.Tiles {
+			for _, t := range row {
+				if t.Colour == g.CurrentColour {
+					t.Collidable = false
+				} else {
+					t.Collidable = true
+				}
+			}
+		}
+	} else {
+		for _, row := range g.Tilemap.Tiles {
+			for _, t := range row {
+				if t.Colour != "grey" {
+					t.Collidable = true
+				}
+			}
+		}
+	}
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{34, 34, 35, 255})
+	screen.Fill(g.Colours[g.CurrentColour])
 	g.Tilemap.Draw(screen, g.Scroll)
 	g.Player.Draw(screen, g.Scroll)
 
@@ -85,6 +123,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	spritesheetBlue, _, err := ebitenutil.NewImageFromFile("assets/monochrome_spritesheet_blue.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	player := Player{
 		Sprite:       Rect{20, 120, tileSize, tileSize},
@@ -110,11 +152,17 @@ func main() {
 	player.AddState("death", &PlayerDeathState{})
 
 	tilemap := NewTilemap(100, 40)
-	tilemap.LoadTiles(spritesheet, "level1.csv", 20, tileSize, 1)
+	tilemap.LoadTiles(spritesheet, "data/level1_tile_layer.csv", 20, tileSize, 1, "grey")
+	tilemap.LoadTiles(spritesheetBlue, "data/level1_blue_layer.csv", 20, tileSize, 1, "blue")
 
 	g := &Game{
 		Player:  &player,
 		Tilemap: tilemap,
+		Colours: map[string]color.RGBA{
+			"grey": {34, 34, 35, 255},
+			"blue": {34, 34, 130, 255},
+		},
+		CurrentColour: "grey",
 	}
 
 	ebiten.SetWindowTitle("qwer")

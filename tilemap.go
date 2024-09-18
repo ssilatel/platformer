@@ -15,13 +15,14 @@ type Tile struct {
 	Sprite     Rect
 	Bb         Rect
 	Image      *ebiten.Image
+	Colour     string
 	Collidable bool
 }
 
 type Tilemap struct {
 	SizeX int
 	SizeY int
-	Tiles [][]Tile
+	Tiles [][]*Tile
 }
 
 func NewTilemap(sizeX, sizeY int) *Tilemap {
@@ -29,13 +30,13 @@ func NewTilemap(sizeX, sizeY int) *Tilemap {
 		SizeX: sizeX,
 		SizeY: sizeY,
 	}
-	t.Tiles = make([][]Tile, t.SizeY)
+	t.Tiles = make([][]*Tile, t.SizeY)
 	for i := range t.Tiles {
-		t.Tiles[i] = make([]Tile, t.SizeX)
+		t.Tiles[i] = make([]*Tile, t.SizeX)
 	}
 	for y, row := range t.Tiles {
 		for x := range row {
-			t.Tiles[y][x] = Tile{
+			t.Tiles[y][x] = &Tile{
 				Image: nil,
 			}
 		}
@@ -44,7 +45,7 @@ func NewTilemap(sizeX, sizeY int) *Tilemap {
 	return t
 }
 
-func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidth, tileSize, separation int) {
+func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidth, tileSize, separation int, colour string) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		log.Fatal("level load:", err)
@@ -61,7 +62,6 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 	for y, row := range rows {
 		for x, cell := range row {
 			if cell == "-1" {
-				t.Tiles[y][x].Image = nil
 				continue
 			}
 
@@ -79,7 +79,7 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 			img := spritesheet.SubImage(image.Rect(tileX, tileY, tileX+tileSize, tileY+tileSize)).(*ebiten.Image)
 
 			if num == 183 {
-				t.Tiles[y][x] = Tile{
+				t.Tiles[y][x] = &Tile{
 					Type: "spike",
 					Sprite: Rect{
 						X: float64(x * tileSize),
@@ -90,14 +90,15 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 					Bb: Rect{
 						X: float64(x*tileSize) + 3,
 						Y: float64(y*tileSize) + 9,
-						W: float64(tileSize) - 5,
+						W: float64(tileSize) - 6,
 						H: float64(tileSize) - 7,
 					},
 					Image:      img,
+					Colour:     colour,
 					Collidable: true,
 				}
 			} else if num == 116 {
-				t.Tiles[y][x] = Tile{
+				t.Tiles[y][x] = &Tile{
 					Type: "ledge",
 					Sprite: Rect{
 						X: float64(x * tileSize),
@@ -112,10 +113,11 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 						H: float64(tileSize) - 11,
 					},
 					Image:      img,
+					Colour:     colour,
 					Collidable: true,
 				}
 			} else {
-				t.Tiles[y][x] = Tile{
+				t.Tiles[y][x] = &Tile{
 					Type: "tile",
 					Sprite: Rect{
 						X: float64(x * tileSize),
@@ -130,6 +132,7 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 						H: float64(tileSize),
 					},
 					Image:      img,
+					Colour:     colour,
 					Collidable: true,
 				}
 			}
@@ -161,7 +164,7 @@ func (t *Tilemap) TilesAround(x, y float64) []Tile {
 				continue
 			}
 
-			tile := t.Tiles[tileY+j][tileX+i]
+			tile := *t.Tiles[tileY+j][tileX+i]
 			if tile.Image != nil && tile.Collidable {
 				tilesAround = append(tilesAround, tile)
 			}
@@ -176,7 +179,7 @@ func (t *Tilemap) TilesVisible(scroll Scroll) []Tile {
 	for x := int(scroll.X / tileSize); x < int((scroll.X+screenWidth)/tileSize)+1; x++ {
 		for y := int(scroll.Y / tileSize); y < int((scroll.Y+screenHeight)/tileSize)+1; y++ {
 			if y >= 0 && x >= 0 && y < t.SizeY && x < t.SizeX {
-				tile := t.Tiles[y][x]
+				tile := *t.Tiles[y][x]
 				if tile.Image != nil {
 					tilesVisible = append(tilesVisible, tile)
 				}
