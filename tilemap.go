@@ -1,0 +1,171 @@
+package main
+
+import (
+	"encoding/csv"
+	"image"
+	"log"
+	"os"
+	"strconv"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
+
+type Tile struct {
+	Type       string
+	Sprite     Rect
+	Bb         Rect
+	Image      *ebiten.Image
+	Colour     string
+	Collidable bool
+	Active     bool
+}
+
+type Tilemap struct {
+	SizeX int
+	SizeY int
+	Tiles [][]*Tile
+}
+
+func NewTilemap(sizeX, sizeY int) *Tilemap {
+	t := &Tilemap{
+		SizeX: sizeX,
+		SizeY: sizeY,
+	}
+	t.Tiles = make([][]*Tile, t.SizeY)
+	for i := range t.Tiles {
+		t.Tiles[i] = make([]*Tile, t.SizeX)
+	}
+	for y, row := range t.Tiles {
+		for x := range row {
+			t.Tiles[y][x] = &Tile{
+				Image: nil,
+			}
+		}
+	}
+
+	return t
+}
+
+func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidth, tileSize, separation int, colour string) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal("level load:", err)
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+
+	rows, err := reader.ReadAll()
+	if err != nil {
+		log.Fatal("csv read:", err)
+	}
+
+	for y, row := range rows {
+		for x, cell := range row {
+			if cell == "-1" {
+				continue
+			}
+
+			num, err := strconv.Atoi(cell)
+			if err != nil {
+				log.Fatal("cell to num:", err)
+			}
+
+			tileRow := num / gridWidth
+			tileCol := num % gridWidth
+
+			tileX := tileCol * (tileSize + separation)
+			tileY := tileRow * (tileSize + separation)
+
+			img := spritesheet.SubImage(image.Rect(tileX, tileY, tileX+tileSize, tileY+tileSize)).(*ebiten.Image)
+
+			if num == 183 {
+				t.Tiles[y][x] = &Tile{
+					Type: "spike",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x*tileSize) + 3,
+						Y: float64(y*tileSize) + 9,
+						W: float64(tileSize) - 6,
+						H: float64(tileSize) - 7,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 116 {
+				t.Tiles[y][x] = &Tile{
+					Type: "ledge",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize) - 11,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else {
+				t.Tiles[y][x] = &Tile{
+					Type: "tile",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			}
+		}
+	}
+}
+
+func (t *Tilemap) Draw(screen *ebiten.Image, camera Camera) {
+	for _, tile := range t.TilesVisible(camera) {
+		if tile.Image != nil {
+			opts := ebiten.DrawImageOptions{}
+			opts.GeoM.Translate(tile.Sprite.X-camera.X, tile.Sprite.Y-camera.Y)
+			screen.DrawImage(tile.Image, &opts)
+		}
+	}
+}
+
+func (t *Tilemap) TilesVisible(camera Camera) []Tile {
+	var tilesVisible []Tile
+	for x := int(camera.X / tileSize); x < int((camera.X+screenWidth)/tileSize)+1; x++ {
+		for y := int(camera.Y / tileSize); y < int((camera.Y+screenHeight)/tileSize)+1; y++ {
+			if y >= 0 && x >= 0 && y < t.SizeY && x < t.SizeX {
+				tile := *t.Tiles[y][x]
+				if tile.Image != nil && tile.Active {
+					tilesVisible = append(tilesVisible, tile)
+				}
+			}
+		}
+	}
+
+	return tilesVisible
+}

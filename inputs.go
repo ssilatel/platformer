@@ -18,10 +18,10 @@ func (g *Game) HandleInputs() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
 		g.Inputs["down"] = true
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
 		g.Inputs["left"] = true
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyD) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
 		g.Inputs["right"] = true
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
@@ -49,10 +49,10 @@ func (g *Game) HandleInputs() {
 	if inpututil.IsKeyJustReleased(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
 		g.Inputs["down"] = false
 	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
+	if inpututil.IsKeyJustReleased(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
 		g.Inputs["left"] = false
 	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyD) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
+	if inpututil.IsKeyJustReleased(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
 		g.Inputs["right"] = false
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {

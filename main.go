@@ -11,13 +11,16 @@ import (
 
 // /// TEMPORARY
 type Player struct{}
+type Camera struct {
+	X, Y float64
+}
 
 ///// TEMPORARY
 
 type Game struct {
 	Inputs       Inputs
-	SceneManager SceneManager
 	Player       *Player
+	SceneManager SceneManager
 }
 
 func (g *Game) Update() error {
@@ -52,6 +55,10 @@ func main() {
 
 	sm := SceneManager{
 		Scenes: []SceneInterface{&MainMenuScene{}},
+		Camera: &Camera{
+			X: screenWidth / 2,
+			Y: screenHeight / 2,
+		},
 	}
 
 	g := &Game{

@@ -7,3 +7,7 @@ const (
 )
 
 type Inputs map[string]bool
+
+type Rect struct {
+	X, Y, W, H float64
+}
