@@ -144,7 +144,7 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 	}
 }
 
-func (t *Tilemap) Draw(screen *ebiten.Image, camera Camera) {
+func (t *Tilemap) Draw(screen *ebiten.Image, camera *Camera) {
 	for _, tile := range t.TilesVisible(camera) {
 		if tile.Image != nil {
 			opts := ebiten.DrawImageOptions{}
@@ -154,7 +154,7 @@ func (t *Tilemap) Draw(screen *ebiten.Image, camera Camera) {
 	}
 }
 
-func (t *Tilemap) TilesVisible(camera Camera) []Tile {
+func (t *Tilemap) TilesVisible(camera *Camera) []Tile {
 	var tilesVisible []Tile
 	for x := int(camera.X / tileSize); x < int((camera.X+screenWidth)/tileSize)+1; x++ {
 		for y := int(camera.Y / tileSize); y < int((camera.Y+screenHeight)/tileSize)+1; y++ {
@@ -168,4 +168,28 @@ func (t *Tilemap) TilesVisible(camera Camera) []Tile {
 	}
 
 	return tilesVisible
+}
+
+func (t *Tilemap) TilesAround(x, y float64) []*Tile {
+	tileX := int(x / tileSize)
+	tileY := int(y / tileSize)
+
+	var tilesAround []*Tile
+	for i := -1; i <= 1; i += 1 {
+		for j := -1; j <= 1; j += 1 {
+			currentY := tileY + j
+			currentX := tileX + i
+
+			if currentX < 0 || currentX >= len(t.Tiles[0]) || currentY < 0 || currentY >= len(t.Tiles) {
+				continue
+			}
+
+			tile := *t.Tiles[tileY+j][tileX+i]
+			if tile.Image != nil && tile.Collidable && tile.Active {
+				tilesAround = append(tilesAround, &tile)
+			}
+		}
+	}
+
+	return tilesAround
 }

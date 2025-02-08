@@ -10,7 +10,7 @@ import (
 
 type SceneInterface interface {
 	Update(sm *SceneManager, inputs map[string]bool, player *Player)
-	Draw(screen *ebiten.Image, sm *SceneManager)
+	Draw(screen *ebiten.Image, sm *SceneManager, player *Player)
 }
 
 type SceneManager struct {
@@ -30,8 +30,8 @@ func (sm *SceneManager) UpdateScenes(inputs map[string]bool, player *Player) {
 	sm.Scenes[len(sm.Scenes)-1].Update(sm, inputs, player)
 }
 
-func (sm *SceneManager) DrawScenes(screen *ebiten.Image) {
-	sm.Scenes[len(sm.Scenes)-1].Draw(screen, sm)
+func (sm *SceneManager) DrawScenes(screen *ebiten.Image, player *Player) {
+	sm.Scenes[len(sm.Scenes)-1].Draw(screen, sm, player)
 }
 
 type MainMenuScene struct{}
@@ -43,7 +43,7 @@ func (s *MainMenuScene) Update(sm *SceneManager, inputs map[string]bool, player 
 	resetInputs(inputs)
 }
 
-func (s *MainMenuScene) Draw(screen *ebiten.Image, sm *SceneManager) {
+func (s *MainMenuScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player) {
 	screen.Fill(color.RGBA{34, 34, 35, 255})
 	ebitenutil.DebugPrintAt(screen, "Main Menu", screenWidth/2-30, screenHeight/2-20)
 	ebitenutil.DebugPrintAt(screen, "Press SPACE to start", screenWidth/2-60, screenHeight/2)
@@ -66,27 +66,21 @@ func NewGameScene() *GameScene {
 }
 
 func (s *GameScene) Update(sm *SceneManager, inputs map[string]bool, player *Player) {
-	if inputs["left"] {
-		sm.Camera.X -= 1
-	}
-	if inputs["right"] {
-		sm.Camera.X += 1
-	}
-
-	if inputs["up"] {
-		sm.Camera.Y -= 1
-	}
-	if inputs["down"] {
-		sm.Camera.Y += 1
-	}
-
 	if inputs["escape"] {
 		sm.ExitScene()
 	}
+
+	player.Update(s.Tilemap, inputs)
+
+	sm.Camera.X += (player.Bb.X + player.Bb.W/2) - screenWidth/2 - sm.Camera.X
+	sm.Camera.Y += (player.Bb.Y + player.Bb.H/2) - screenHeight/2 - sm.Camera.Y
 }
 
-func (s *GameScene) Draw(screen *ebiten.Image, sm *SceneManager) {
+func (s *GameScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player) {
 	screen.Fill(color.RGBA{34, 34, 35, 255})
-	s.Tilemap.Draw(screen, *sm.Camera)
+
+	s.Tilemap.Draw(screen, sm.Camera)
+	player.Draw(screen, sm.Camera)
+
 	ebitenutil.DebugPrint(screen, "Game Scene")
 }
