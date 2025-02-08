@@ -5,10 +5,11 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type PlayerState interface {
-	Update(p *Player, tilemap *Tilemap, inputs map[string]bool)
+	Update(p *Player, tilemap *Tilemap)
 }
 
 type Player struct {
@@ -27,8 +28,8 @@ type Player struct {
 	CurrentState     string
 }
 
-func (p *Player) Update(tilemap *Tilemap, inputs map[string]bool) {
-	p.States[p.CurrentState].Update(p, tilemap, inputs)
+func (p *Player) Update(tilemap *Tilemap) {
+	p.States[p.CurrentState].Update(p, tilemap)
 }
 
 func (p *Player) Draw(screen *ebiten.Image, camera *Camera) {
@@ -78,18 +79,18 @@ func (p *Player) AddState(name string, state PlayerState) {
 
 type PlayerNormalState struct{}
 
-func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap, inputs map[string]bool) {
+func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	p.Oldbb = p.Bb
 	p.Bb.X = p.Sprite.X + p.OffsetX
 	p.Bb.Y = p.Sprite.Y + p.OffsetY
 
-	if inputs["left"] {
+	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		p.Vx = -1.5
 		p.Flip = true
 		if p.Collisions["bottom"] {
 			p.SetAnimation("run")
 		}
-	} else if inputs["right"] {
+	} else if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyRight) {
 		p.Vx = 1.5
 		p.Flip = false
 		if p.Collisions["bottom"] {
@@ -102,7 +103,7 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap, inputs map[strin
 		}
 	}
 
-	if inputs["up"] && p.CanJump {
+	if (inpututil.IsKeyJustPressed(ebiten.KeyW) || inpututil.IsKeyJustPressed(ebiten.KeyUp)) && p.CanJump {
 		p.Vy = -7
 		p.CanJump = false
 		p.SetAnimation("jump")
@@ -174,7 +175,7 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap, inputs map[strin
 
 type PlayerDeathState struct{}
 
-func (s *PlayerDeathState) Update(p *Player, tilemap *Tilemap, inputs map[string]bool) {
+func (s *PlayerDeathState) Update(p *Player, tilemap *Tilemap) {
 	p.SetAnimation("death")
 	p.Vx = 0
 	p.Vy = 0

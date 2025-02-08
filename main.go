@@ -12,15 +12,13 @@ import (
 // BLUE 34, 34, 130
 
 type Game struct {
-	Inputs       Inputs
 	Spritesheet  *ebiten.Image
 	Player       *Player
 	SceneManager SceneManager
 }
 
 func (g *Game) Update() error {
-	g.HandleInputs()
-	g.SceneManager.UpdateScenes(g.Inputs, g.Player)
+	g.SceneManager.UpdateScenes(g.Player)
 
 	return nil
 }
@@ -34,20 +32,6 @@ func (g *Game) Layout(w, h int) (int, int) {
 }
 
 func main() {
-	inputs := Inputs{
-		"escape":     false,
-		"space":      false,
-		"up":         false,
-		"down":       false,
-		"left":       false,
-		"right":      false,
-		"r":          false,
-		"e":          false,
-		"q":          false,
-		"leftClick":  false,
-		"rightClick": false,
-	}
-
 	spritesheet, _, err := ebitenutil.NewImageFromFile("assets/monochrome_spritesheet.png")
 	if err != nil {
 		log.Fatal(err)
@@ -81,7 +65,6 @@ func main() {
 	}
 
 	g := &Game{
-		Inputs:       inputs,
 		Spritesheet:  spritesheet,
 		Player:       &player,
 		SceneManager: sm,

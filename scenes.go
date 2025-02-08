@@ -6,10 +6,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type SceneInterface interface {
-	Update(sm *SceneManager, inputs map[string]bool, player *Player)
+	Update(sm *SceneManager, player *Player)
 	Draw(screen *ebiten.Image, sm *SceneManager, player *Player)
 }
 
@@ -26,8 +27,8 @@ func (sm *SceneManager) ExitScene() {
 	sm.Scenes = sm.Scenes[:len(sm.Scenes)-1]
 }
 
-func (sm *SceneManager) UpdateScenes(inputs map[string]bool, player *Player) {
-	sm.Scenes[len(sm.Scenes)-1].Update(sm, inputs, player)
+func (sm *SceneManager) UpdateScenes(player *Player) {
+	sm.Scenes[len(sm.Scenes)-1].Update(sm, player)
 }
 
 func (sm *SceneManager) DrawScenes(screen *ebiten.Image, player *Player) {
@@ -36,11 +37,10 @@ func (sm *SceneManager) DrawScenes(screen *ebiten.Image, player *Player) {
 
 type MainMenuScene struct{}
 
-func (s *MainMenuScene) Update(sm *SceneManager, inputs map[string]bool, player *Player) {
-	if inputs["space"] {
+func (s *MainMenuScene) Update(sm *SceneManager, player *Player) {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		sm.EnterScene(NewGameScene())
 	}
-	resetInputs(inputs)
 }
 
 func (s *MainMenuScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player) {
@@ -65,12 +65,19 @@ func NewGameScene() *GameScene {
 	}
 }
 
-func (s *GameScene) Update(sm *SceneManager, inputs map[string]bool, player *Player) {
-	if inputs["escape"] {
+func (s *GameScene) Update(sm *SceneManager, player *Player) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		sm.ExitScene()
+		//resetInputs(inputs)
 	}
 
-	player.Update(s.Tilemap, inputs)
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		player.Sprite.X = 20
+		player.Sprite.Y = 120
+		player.CurrentState = "normal"
+	}
+
+	player.Update(s.Tilemap)
 
 	sm.Camera.X += (player.Bb.X + player.Bb.W/2) - screenWidth/2 - sm.Camera.X
 	sm.Camera.Y += (player.Bb.Y + player.Bb.H/2) - screenHeight/2 - sm.Camera.Y

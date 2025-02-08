@@ -8,8 +8,6 @@ const (
 	tileSize     = 16
 )
 
-type Inputs map[string]bool
-
 type Camera struct {
 	X, Y float64
 }
