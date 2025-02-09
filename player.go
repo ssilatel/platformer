@@ -26,6 +26,7 @@ type Player struct {
 	Flip             bool
 	States           map[string]PlayerState
 	CurrentState     string
+	Colour           string
 	HasRed           bool
 	HasGreen         bool
 	HasBlue          bool
@@ -120,7 +121,7 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	p.Bb.X += p.Vx
 	p.Bb.Y += p.Vy
 
-	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y)
+	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y, p.Colour)
 	for _, t := range tilesAround {
 		if HasCollided(p, &t.Bb) {
 			if t.Type == "spike" {
@@ -153,7 +154,6 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	}
 	p.Sprite.X = p.Bb.X - p.OffsetX
 
-	tilesAround = tilemap.TilesAround(p.Bb.X, p.Bb.Y)
 	for _, t := range tilesAround {
 		if HasCollided(p, &t.Bb) {
 			if t.Type == "spike" {
@@ -225,7 +225,7 @@ func (s *PlayerDeathState) Update(p *Player, tilemap *Tilemap) {
 	p.Bb.X += p.Vx
 	p.Bb.Y += p.Vy
 
-	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y)
+	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y, p.Colour)
 
 	for _, t := range tilesAround {
 		if HasCollided(p, &t.Bb) {

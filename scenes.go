@@ -93,15 +93,25 @@ func (s *GameScene) Update(sm *SceneManager, player *Player) {
 func (s *GameScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player) {
 	screen.Fill(color.RGBA{34, 34, 35, 255})
 
-	if ebiten.IsKeyPressed(ebiten.KeyJ) && player.HasRed {
-		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(20), color.RGBA{255, 0, 0, 255}, false)
+	if ebiten.IsKeyPressed(ebiten.KeyJ) && ebiten.IsKeyPressed(ebiten.KeyK) && player.HasRed && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{255, 255, 0, 255}, false)
+	} else if ebiten.IsKeyPressed(ebiten.KeyJ) && ebiten.IsKeyPressed(ebiten.KeyL) && player.HasRed && player.HasBlue {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{255, 0, 255, 255}, false)
+	} else if ebiten.IsKeyPressed(ebiten.KeyK) && ebiten.IsKeyPressed(ebiten.KeyL) && player.HasBlue && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{0, 255, 255, 255}, false)
+	} else if ebiten.IsKeyPressed(ebiten.KeyJ) && player.HasRed {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{255, 0, 0, 255}, false)
+		player.Colour = "red"
+	} else if ebiten.IsKeyPressed(ebiten.KeyK) && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{0, 255, 0, 255}, false)
+		player.Colour = "green"
+	} else if ebiten.IsKeyPressed(ebiten.KeyL) && player.HasBlue {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{0, 0, 255, 255}, false)
+		player.Colour = "blue"
+	} else {
+		player.Colour = ""
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyK) && player.HasGreen {
-		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(20), color.RGBA{0, 255, 0, 255}, false)
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyL) && player.HasBlue {
-		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(20), color.RGBA{0, 0, 255, 255}, false)
-	}
+
 	s.Tilemap.Draw(screen, sm.Camera)
 	player.Draw(screen, sm.Camera)
 

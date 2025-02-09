@@ -203,7 +203,7 @@ func (t *Tilemap) TilesVisible(camera *Camera) []Tile {
 	return tilesVisible
 }
 
-func (t *Tilemap) TilesAround(x, y float64) []*Tile {
+func (t *Tilemap) TilesAround(x, y float64, colour string) []*Tile {
 	tileX := int(x / tileSize)
 	tileY := int(y / tileSize)
 
@@ -218,7 +218,7 @@ func (t *Tilemap) TilesAround(x, y float64) []*Tile {
 			}
 
 			tile := *t.Tiles[tileY+j][tileX+i]
-			if tile.Image != nil && tile.Collidable && tile.Active {
+			if tile.Image != nil && tile.Collidable && tile.Active && tile.Colour != colour {
 				tilesAround = append(tilesAround, &tile)
 			}
 		}
