@@ -54,7 +54,6 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 	defer file.Close()
 
 	reader := csv.NewReader(file)
-
 	rows, err := reader.ReadAll()
 	if err != nil {
 		log.Fatal("csv read:", err)
@@ -79,7 +78,27 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 
 			img := spritesheet.SubImage(image.Rect(tileX, tileY, tileX+tileSize, tileY+tileSize)).(*ebiten.Image)
 
-			if num == 183 {
+			if num == 102 {
+				t.Tiles[y][x] = &Tile{
+					Type: "colour",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x*tileSize) + 6,
+						Y: float64(y*tileSize) + 4,
+						W: float64(tileSize) - 12,
+						H: float64(tileSize) - 8,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 183 {
 				t.Tiles[y][x] = &Tile{
 					Type: "spike",
 					Sprite: Rect{
@@ -145,10 +164,24 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 }
 
 func (t *Tilemap) Draw(screen *ebiten.Image, camera *Camera) {
+	var redTint ebiten.ColorM
+	redTint.Scale(1, 0, 0, 1)
+	var greenTint ebiten.ColorM
+	greenTint.Scale(0, 1, 0, 1)
+	var blueTint ebiten.ColorM
+	blueTint.Scale(0, 0, 1, 1)
+
 	for _, tile := range t.TilesVisible(camera) {
 		if tile.Image != nil {
 			opts := ebiten.DrawImageOptions{}
 			opts.GeoM.Translate(tile.Sprite.X-camera.X, tile.Sprite.Y-camera.Y)
+			if tile.Colour == "red" {
+				opts.ColorM = redTint
+			} else if tile.Colour == "green" {
+				opts.ColorM = greenTint
+			} else if tile.Colour == "blue" {
+				opts.ColorM = blueTint
+			}
 			screen.DrawImage(tile.Image, &opts)
 		}
 	}

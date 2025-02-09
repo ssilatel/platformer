@@ -26,6 +26,9 @@ type Player struct {
 	Flip             bool
 	States           map[string]PlayerState
 	CurrentState     string
+	HasRed           bool
+	HasGreen         bool
+	HasBlue          bool
 }
 
 func (p *Player) Update(tilemap *Tilemap) {
@@ -123,6 +126,21 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 			if t.Type == "spike" {
 				p.CurrentState = "death"
 			}
+			if t.Type == "colour" {
+				if t.Colour == "red" {
+					p.HasRed = true
+				}
+				if t.Colour == "green" {
+					p.HasGreen = true
+				}
+				if t.Colour == "blue" {
+					p.HasBlue = true
+				}
+
+				tileX := int(t.Bb.X / tileSize)
+				tileY := int(t.Bb.Y / tileSize)
+				tilemap.Tiles[tileY][tileX].Active = false
+			}
 			if p.Bb.X <= t.Bb.X+t.Bb.W && p.Oldbb.X >= t.Bb.X+t.Bb.W {
 				p.Bb.X = t.Bb.X + t.Bb.W
 				p.Collisions["left"] = true
@@ -140,6 +158,21 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 		if HasCollided(p, &t.Bb) {
 			if t.Type == "spike" {
 				p.CurrentState = "death"
+			}
+			if t.Type == "colour" {
+				if t.Colour == "red" {
+					p.HasRed = true
+				}
+				if t.Colour == "green" {
+					p.HasGreen = true
+				}
+				if t.Colour == "blue" {
+					p.HasBlue = true
+				}
+
+				tileX := int(t.Bb.X / tileSize)
+				tileY := int(t.Bb.Y / tileSize)
+				tilemap.Tiles[tileY][tileX].Active = false
 			}
 			if p.Bb.Y <= t.Bb.Y+t.Bb.H && p.Oldbb.Y >= t.Bb.Y+t.Bb.H {
 				p.Bb.Y = t.Bb.Y + t.Bb.H

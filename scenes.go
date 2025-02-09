@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type SceneInterface interface {
@@ -59,7 +60,10 @@ func NewGameScene() *GameScene {
 		log.Fatal(err)
 	}
 	t := NewTilemap(100, 40)
-	t.LoadTiles(spritesheet, "data/level1.csv", 20, tileSize, 1, "grey")
+	t.LoadTiles(spritesheet, "data/level1_tile_layer.csv", 20, tileSize, 1, "black")
+	t.LoadTiles(spritesheet, "data/level1_red_layer.csv", 20, tileSize, 1, "red")
+	t.LoadTiles(spritesheet, "data/level1_green_layer.csv", 20, tileSize, 1, "green")
+	t.LoadTiles(spritesheet, "data/level1_blue_layer.csv", 20, tileSize, 1, "blue")
 	return &GameScene{
 		Tilemap: t,
 	}
@@ -68,13 +72,16 @@ func NewGameScene() *GameScene {
 func (s *GameScene) Update(sm *SceneManager, player *Player) {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		sm.ExitScene()
-		//resetInputs(inputs)
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		player.Sprite.X = 20
 		player.Sprite.Y = 120
 		player.CurrentState = "normal"
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
+		player.Sprite.X = 1220
+		player.Sprite.Y = 190
 	}
 
 	player.Update(s.Tilemap)
@@ -86,6 +93,15 @@ func (s *GameScene) Update(sm *SceneManager, player *Player) {
 func (s *GameScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player) {
 	screen.Fill(color.RGBA{34, 34, 35, 255})
 
+	if ebiten.IsKeyPressed(ebiten.KeyJ) && player.HasRed {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(20), color.RGBA{255, 0, 0, 255}, false)
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyK) && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(20), color.RGBA{0, 255, 0, 255}, false)
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyL) && player.HasBlue {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(20), color.RGBA{0, 0, 255, 255}, false)
+	}
 	s.Tilemap.Draw(screen, sm.Camera)
 	player.Draw(screen, sm.Camera)
 
