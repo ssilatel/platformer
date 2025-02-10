@@ -124,6 +124,12 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	tilesAround := tilemap.TilesAround(p.Bb.X, p.Bb.Y, p.Colour)
 	for _, t := range tilesAround {
 		if HasCollided(p, &t.Bb) {
+			if t.Type == "grass" && p.CurrentAnimation == "run" {
+				grassSound.Play()
+			} else if inpututil.IsKeyJustReleased(ebiten.KeyLeft) || inpututil.IsKeyJustReleased(ebiten.KeyRight) || inpututil.IsKeyJustReleased(ebiten.KeyA) || inpututil.IsKeyJustReleased(ebiten.KeyD) || p.CurrentAnimation != "run" {
+				grassSound.Pause()
+				grassSound.Rewind()
+			}
 			if t.Type == "spike" {
 				p.CurrentState = "death"
 			}
@@ -142,11 +148,11 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 				tileY := int(t.Bb.Y / tileSize)
 				tilemap.Tiles[tileY][tileX].Active = false
 			}
-			if p.Bb.X <= t.Bb.X+t.Bb.W && p.Oldbb.X >= t.Bb.X+t.Bb.W {
+			if p.Bb.X <= t.Bb.X+t.Bb.W && p.Oldbb.X >= t.Bb.X+t.Bb.W && t.Type != "grass" {
 				p.Bb.X = t.Bb.X + t.Bb.W
 				p.Collisions["left"] = true
 			}
-			if p.Bb.X+p.Bb.W >= t.Bb.X && p.Oldbb.X+p.Bb.W <= t.Bb.X {
+			if p.Bb.X+p.Bb.W >= t.Bb.X && p.Oldbb.X+p.Bb.W <= t.Bb.X && t.Type != "grass" {
 				p.Bb.X = t.Bb.X - p.Bb.W
 				p.Collisions["right"] = true
 			}
@@ -156,7 +162,7 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 
 	for _, t := range tilesAround {
 		if HasCollided(p, &t.Bb) {
-			if t.Type == "spike" {
+			if t.Type == "spike" || t.Type == "mushroom" {
 				p.CurrentState = "death"
 			}
 			if t.Type == "colour" {
@@ -174,11 +180,11 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 				tileY := int(t.Bb.Y / tileSize)
 				tilemap.Tiles[tileY][tileX].Active = false
 			}
-			if p.Bb.Y <= t.Bb.Y+t.Bb.H && p.Oldbb.Y >= t.Bb.Y+t.Bb.H {
+			if p.Bb.Y <= t.Bb.Y+t.Bb.H && p.Oldbb.Y >= t.Bb.Y+t.Bb.H && t.Type != "grass" {
 				p.Bb.Y = t.Bb.Y + t.Bb.H
 				p.Collisions["top"] = true
 			}
-			if p.Bb.Y+p.Bb.H >= t.Bb.Y && p.Oldbb.Y+p.Oldbb.H <= t.Bb.Y {
+			if p.Bb.Y+p.Bb.H >= t.Bb.Y && p.Oldbb.Y+p.Oldbb.H <= t.Bb.Y && t.Type != "grass" {
 				p.Bb.Y = t.Bb.Y - p.Bb.H
 				p.Collisions["bottom"] = true
 			}

@@ -78,7 +78,107 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 
 			img := spritesheet.SubImage(image.Rect(tileX, tileY, tileX+tileSize, tileY+tileSize)).(*ebiten.Image)
 
-			if num == 102 {
+			if num == 5 || num == 24 || num == 25 || num == 26 || num == 40 || num == 19 || num == 39 || num == 14 || num == 34 || num == 60 || num == 80 {
+				t.Tiles[y][x] = &Tile{
+					Type: "misc",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: false,
+					Active:     true,
+				}
+			} else if num == 44 || num == 45 || num == 46 {
+				t.Tiles[y][x] = &Tile{
+					Type: "crane-platform",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize) - 11,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 166 {
+				t.Tiles[y][x] = &Tile{
+					Type: "spike",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x*tileSize) + 3,
+						Y: float64(y * tileSize),
+						W: float64(tileSize) - 6,
+						H: float64(tileSize) - 12,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 54 {
+				t.Tiles[y][x] = &Tile{
+					Type: "mushroom",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x*tileSize) + 2,
+						Y: float64(y*tileSize) + 4,
+						W: float64(tileSize) - 4,
+						H: float64(tileSize) - 4,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 38 {
+				t.Tiles[y][x] = &Tile{
+					Type: "grass",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 102 {
 				t.Tiles[y][x] = &Tile{
 					Type: "colour",
 					Sprite: Rect{

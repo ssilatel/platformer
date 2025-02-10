@@ -82,6 +82,15 @@ func (s *GameScene) Update(sm *SceneManager, player *Player) {
 	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
 		player.Sprite.X = 1220
 		player.Sprite.Y = 190
+		player.CurrentState = "normal"
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
+		player.Sprite.X = 980
+		player.Sprite.Y = 580
+		player.CurrentState = "normal"
+		player.HasRed = true
+		player.HasGreen = true
+		player.HasBlue = true
 	}
 
 	player.Update(s.Tilemap)
