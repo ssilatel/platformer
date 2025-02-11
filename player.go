@@ -160,6 +160,17 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	}
 	p.Sprite.X = p.Bb.X - p.OffsetX
 
+	onGrass := false
+	for _, t := range tilesAround {
+		if t.Type == "grass" && p.CurrentAnimation == "run" {
+			onGrass = true
+		}
+	}
+	if !onGrass {
+		grassSound.Rewind()
+		grassSound.Pause()
+	}
+
 	for _, t := range tilesAround {
 		if HasCollided(p, &t.Bb) {
 			if t.Type == "spike" || t.Type == "mushroom" {

@@ -41,6 +41,16 @@ type MainMenuScene struct{}
 func (s *MainMenuScene) Update(sm *SceneManager, player *Player) {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		sm.EnterScene(NewGameScene())
+		player.Sprite.X = 20
+		player.Sprite.Y = 20
+		player.Bb.X = 20
+		player.Bb.Y = 20
+	} else if inpututil.IsKeyJustPressed(ebiten.KeyT) {
+		sm.EnterScene(NewTestScene())
+		player.Sprite.X = 230
+		player.Sprite.Y = 120
+		player.Bb.X = 230
+		player.Bb.Y = 120
 	}
 }
 
@@ -48,6 +58,7 @@ func (s *MainMenuScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Pla
 	screen.Fill(color.RGBA{34, 34, 35, 255})
 	ebitenutil.DebugPrintAt(screen, "Main Menu", screenWidth/2-30, screenHeight/2-20)
 	ebitenutil.DebugPrintAt(screen, "Press SPACE to start", screenWidth/2-60, screenHeight/2)
+	ebitenutil.DebugPrintAt(screen, "Press T for test scene", screenWidth/2-65, screenHeight/2+20)
 }
 
 type GameScene struct {
@@ -64,6 +75,8 @@ func NewGameScene() *GameScene {
 	t.LoadTiles(spritesheet, "data/level1_red_layer.csv", 20, tileSize, 1, "red")
 	t.LoadTiles(spritesheet, "data/level1_green_layer.csv", 20, tileSize, 1, "green")
 	t.LoadTiles(spritesheet, "data/level1_blue_layer.csv", 20, tileSize, 1, "blue")
+	//t := NewTilemap(120, 117)
+	//t.LoadTiles(spritesheet, "data/level2.csv", 20, tileSize, 1, "black")
 	return &GameScene{
 		Tilemap: t,
 	}
@@ -125,4 +138,65 @@ func (s *GameScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player)
 	player.Draw(screen, sm.Camera)
 
 	ebitenutil.DebugPrint(screen, "Game Scene")
+}
+
+type TestScene struct {
+	Tilemap *Tilemap
+}
+
+func NewTestScene() *TestScene {
+	spritesheet, _, err := ebitenutil.NewImageFromFile("assets/monochrome_spritesheet.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t := NewTilemap(85, 51)
+	t.LoadTiles(spritesheet, "data/testlevel.csv", 20, tileSize, 1, "black")
+	return &TestScene{
+		Tilemap: t,
+	}
+}
+
+func (s *TestScene) Update(sm *SceneManager, player *Player) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		sm.ExitScene()
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		player.Sprite.X = 230
+		player.Sprite.Y = 620
+		player.CurrentState = "normal"
+	}
+
+	player.Update(s.Tilemap)
+
+	sm.Camera.X += (player.Bb.X + player.Bb.W/2) - screenWidth/2 - sm.Camera.X
+	sm.Camera.Y += (player.Bb.Y + player.Bb.H/2) - screenHeight/2 - sm.Camera.Y
+}
+
+func (s *TestScene) Draw(screen *ebiten.Image, sm *SceneManager, player *Player) {
+	screen.Fill(color.RGBA{34, 34, 35, 255})
+
+	if ebiten.IsKeyPressed(ebiten.KeyJ) && ebiten.IsKeyPressed(ebiten.KeyK) && player.HasRed && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{255, 255, 0, 255}, false)
+	} else if ebiten.IsKeyPressed(ebiten.KeyJ) && ebiten.IsKeyPressed(ebiten.KeyL) && player.HasRed && player.HasBlue {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{255, 0, 255, 255}, false)
+	} else if ebiten.IsKeyPressed(ebiten.KeyK) && ebiten.IsKeyPressed(ebiten.KeyL) && player.HasBlue && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{0, 255, 255, 255}, false)
+	} else if ebiten.IsKeyPressed(ebiten.KeyJ) && player.HasRed {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{255, 0, 0, 255}, false)
+		player.Colour = "red"
+	} else if ebiten.IsKeyPressed(ebiten.KeyK) && player.HasGreen {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{0, 255, 0, 255}, false)
+		player.Colour = "green"
+	} else if ebiten.IsKeyPressed(ebiten.KeyL) && player.HasBlue {
+		vector.DrawFilledCircle(screen, float32((player.Sprite.X+player.Sprite.W/2)-sm.Camera.X), float32((player.Sprite.Y+player.Sprite.H/2)-sm.Camera.Y), float32(40), color.RGBA{0, 0, 255, 255}, false)
+		player.Colour = "blue"
+	} else {
+		player.Colour = ""
+	}
+
+	s.Tilemap.Draw(screen, sm.Camera)
+	player.Draw(screen, sm.Camera)
+
+	ebitenutil.DebugPrint(screen, "Test Scene")
 }

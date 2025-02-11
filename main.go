@@ -49,8 +49,14 @@ func main() {
 	}
 
 	player := Player{
-		Sprite:       Rect{20, 120, tileSize, tileSize},
-		Bb:           Rect{20, 120, 12, 12},
+		//Sprite: Rect{20, 120, tileSize, tileSize},
+		//Bb:     Rect{20, 120, 12, 12},
+		//Sprite:       Rect{70, 760, tileSize, tileSize},
+		//Bb:           Rect{70, 760, 12, 12},
+		//Sprite:       Rect{230, 120, tileSize, tileSize},
+		//Bb:           Rect{230, 120, 12, 12},
+		Sprite:       Rect{0, 0, tileSize, tileSize},
+		Bb:           Rect{0, 0, 12, 12},
 		Oldbb:        Rect{100, 100, tileSize, tileSize},
 		OffsetX:      2,
 		OffsetY:      4,
