@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"image/color"
 	"log"
 
@@ -66,15 +67,35 @@ type GameScene struct {
 }
 
 func NewGameScene() *GameScene {
-	spritesheet, _, err := ebitenutil.NewImageFromFile("assets/monochrome_spritesheet.png")
+	spritesheetBytes, err := staticFiles.ReadFile("assets/monochrome_spritesheet.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	spritesheet, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(spritesheetBytes))
 	if err != nil {
 		log.Fatal(err)
 	}
 	t := NewTilemap(100, 40)
-	t.LoadTiles(spritesheet, "data/level1_tile_layer.csv", 20, tileSize, 1, "black")
-	t.LoadTiles(spritesheet, "data/level1_red_layer.csv", 20, tileSize, 1, "red")
-	t.LoadTiles(spritesheet, "data/level1_green_layer.csv", 20, tileSize, 1, "green")
-	t.LoadTiles(spritesheet, "data/level1_blue_layer.csv", 20, tileSize, 1, "blue")
+	tileBytes, err := staticFiles.ReadFile("data/level1_tile_layer.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.LoadTiles(spritesheet, tileBytes, 20, tileSize, 1, "black")
+	tileBytes, err = staticFiles.ReadFile("data/level1_red_layer.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.LoadTiles(spritesheet, tileBytes, 20, tileSize, 1, "red")
+	tileBytes, err = staticFiles.ReadFile("data/level1_green_layer.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.LoadTiles(spritesheet, tileBytes, 20, tileSize, 1, "green")
+	tileBytes, err = staticFiles.ReadFile("data/level1_blue_layer.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.LoadTiles(spritesheet, tileBytes, 20, tileSize, 1, "blue")
 	//t := NewTilemap(120, 117)
 	//t.LoadTiles(spritesheet, "data/level2.csv", 20, tileSize, 1, "black")
 	return &GameScene{
@@ -145,12 +166,20 @@ type TestScene struct {
 }
 
 func NewTestScene() *TestScene {
-	spritesheet, _, err := ebitenutil.NewImageFromFile("assets/monochrome_spritesheet.png")
+	spritesheetBytes, err := staticFiles.ReadFile("assets/monochrome_spritesheet.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	spritesheet, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(spritesheetBytes))
 	if err != nil {
 		log.Fatal(err)
 	}
 	t := NewTilemap(85, 51)
-	t.LoadTiles(spritesheet, "data/testlevel.csv", 20, tileSize, 1, "black")
+	tileBytes, err := staticFiles.ReadFile("data/testlevel.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.LoadTiles(spritesheet, tileBytes, 20, tileSize, 1, "black")
 	return &TestScene{
 		Tilemap: t,
 	}

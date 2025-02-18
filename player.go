@@ -130,6 +130,9 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 				grassSound.Pause()
 				grassSound.Rewind()
 			}
+			if t.Type == "vines" {
+				leavesSound.Play()
+			}
 			if t.Type == "spike" {
 				p.CurrentState = "death"
 			}
@@ -148,11 +151,11 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 				tileY := int(t.Bb.Y / tileSize)
 				tilemap.Tiles[tileY][tileX].Active = false
 			}
-			if p.Bb.X <= t.Bb.X+t.Bb.W && p.Oldbb.X >= t.Bb.X+t.Bb.W && t.Type != "grass" {
+			if p.Bb.X <= t.Bb.X+t.Bb.W && p.Oldbb.X >= t.Bb.X+t.Bb.W && t.Type != "grass" && t.Type != "vines" {
 				p.Bb.X = t.Bb.X + t.Bb.W
 				p.Collisions["left"] = true
 			}
-			if p.Bb.X+p.Bb.W >= t.Bb.X && p.Oldbb.X+p.Bb.W <= t.Bb.X && t.Type != "grass" {
+			if p.Bb.X+p.Bb.W >= t.Bb.X && p.Oldbb.X+p.Bb.W <= t.Bb.X && t.Type != "grass" && t.Type != "vines" {
 				p.Bb.X = t.Bb.X - p.Bb.W
 				p.Collisions["right"] = true
 			}
@@ -169,6 +172,16 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 	if !onGrass {
 		grassSound.Rewind()
 		grassSound.Pause()
+	}
+	onVines := false
+	for _, t := range tilesAround {
+		if t.Type == "vines" {
+			onVines = true
+		}
+	}
+	if !onVines {
+		leavesSound.Rewind()
+		leavesSound.Pause()
 	}
 
 	for _, t := range tilesAround {
@@ -191,11 +204,11 @@ func (s *PlayerNormalState) Update(p *Player, tilemap *Tilemap) {
 				tileY := int(t.Bb.Y / tileSize)
 				tilemap.Tiles[tileY][tileX].Active = false
 			}
-			if p.Bb.Y <= t.Bb.Y+t.Bb.H && p.Oldbb.Y >= t.Bb.Y+t.Bb.H && t.Type != "grass" {
+			if p.Bb.Y <= t.Bb.Y+t.Bb.H && p.Oldbb.Y >= t.Bb.Y+t.Bb.H && t.Type != "grass" && t.Type != "vines" {
 				p.Bb.Y = t.Bb.Y + t.Bb.H
 				p.Collisions["top"] = true
 			}
-			if p.Bb.Y+p.Bb.H >= t.Bb.Y && p.Oldbb.Y+p.Oldbb.H <= t.Bb.Y && t.Type != "grass" {
+			if p.Bb.Y+p.Bb.H >= t.Bb.Y && p.Oldbb.Y+p.Oldbb.H <= t.Bb.Y && t.Type != "grass" && t.Type != "vines" {
 				p.Bb.Y = t.Bb.Y - p.Bb.H
 				p.Collisions["bottom"] = true
 			}

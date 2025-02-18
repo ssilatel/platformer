@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"image"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -46,14 +46,15 @@ func NewTilemap(sizeX, sizeY int) *Tilemap {
 	return t
 }
 
-func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidth, tileSize, separation int, colour string) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		log.Fatal("level load:", err)
-	}
-	defer file.Close()
+// func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidth, tileSize, separation int, colour string) {
+func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, file []byte, gridWidth, tileSize, separation int, colour string) {
+	//file, err := os.Open(filepath)
+	//if err != nil {
+	//	log.Fatal("level load:", err)
+	//}
+	//defer file.Close()
 
-	reader := csv.NewReader(file)
+	reader := csv.NewReader(bytes.NewReader(file))
 	rows, err := reader.ReadAll()
 	if err != nil {
 		log.Fatal("csv read:", err)
@@ -78,7 +79,7 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 
 			img := spritesheet.SubImage(image.Rect(tileX, tileY, tileX+tileSize, tileY+tileSize)).(*ebiten.Image)
 
-			if num == 5 || num == 24 || num == 25 || num == 26 || num == 40 || num == 19 || num == 39 || num == 14 || num == 34 || num == 60 || num == 80 {
+			if num == 5 || num == 24 || num == 25 || num == 26 || num == 40 || num == 14 || num == 34 || num == 60 || num == 80 {
 				t.Tiles[y][x] = &Tile{
 					Type: "misc",
 					Sprite: Rect{
@@ -152,6 +153,26 @@ func (t *Tilemap) LoadTiles(spritesheet *ebiten.Image, filepath string, gridWidt
 						Y: float64(y*tileSize) + 4,
 						W: float64(tileSize) - 4,
 						H: float64(tileSize) - 4,
+					},
+					Image:      img,
+					Colour:     colour,
+					Collidable: true,
+					Active:     true,
+				}
+			} else if num == 19 || num == 39 {
+				t.Tiles[y][x] = &Tile{
+					Type: "vines",
+					Sprite: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize),
+					},
+					Bb: Rect{
+						X: float64(x * tileSize),
+						Y: float64(y * tileSize),
+						W: float64(tileSize),
+						H: float64(tileSize) - 6,
 					},
 					Image:      img,
 					Colour:     colour,

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"image"
 	"log"
 	"os"
@@ -9,14 +10,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-)
 
-// GREY 34, 34, 35
-// BLUE 34, 34, 130
+	_ "image/png"
+)
 
 var audioContext *audio.Context
 var single *audio.Player
 var grassSound *audio.Player
+var leavesSound *audio.Player
 
 type Game struct {
 	Spritesheet  *ebiten.Image
@@ -40,10 +41,24 @@ func (g *Game) Layout(w, h int) (int, int) {
 
 func main() {
 	audioContext = audio.NewContext(48000)
-	grassSound = createLoop("./assets/sfx_step_grass_r.mp3")
-	grassSound.SetVolume(0.33)
+	grassSoundFile, err := staticFiles.ReadFile("assets/sfx/sfx_step_grass_r.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	grassSound = createLoop(grassSoundFile)
+	grassSound.SetVolume(0.3)
+	leavesSoundFile, err := staticFiles.ReadFile("assets/sfx/rustle06.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	leavesSound = createLoop(leavesSoundFile)
+	leavesSound.SetVolume(0.3)
 
-	spritesheet, _, err := ebitenutil.NewImageFromFile("assets/monochrome_spritesheet.png")
+	spritesheetBytes, err := staticFiles.ReadFile("assets/monochrome_spritesheet.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	spritesheet, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(spritesheetBytes))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,11 +126,8 @@ func createSingle(filepath string) *audio.Player {
 	return singlePlayer
 }
 
-func createLoop(filepath string) *audio.Player {
-	in, err := os.Open(filepath)
-	if err != nil {
-		log.Fatal(err)
-	}
+func createLoop(file []byte) *audio.Player {
+	in := bytes.NewReader(file)
 	stream, err := mp3.DecodeWithoutResampling(in)
 	if err != nil {
 		log.Fatal(err)
