@@ -1,4 +1,4 @@
-module asdf
+module platformer
 
 go 1.23.0
 
